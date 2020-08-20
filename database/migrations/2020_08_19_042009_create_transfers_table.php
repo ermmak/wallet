@@ -18,10 +18,11 @@ class CreateTransfersTable extends Migration
             $table->foreignId('from');
             $table->foreignId('from_currency');
             $table->decimal('from_currency_rate', 10, 8);
-            $table->decimal('from_amount', 14);
             $table->foreignId('to');
             $table->foreignId('to_currency');
             $table->decimal('to_currency_rate', 10, 8);
+            $table->decimal('amount', 14);
+            $table->boolean('recipient_currency');
             $table->timestamp('created_at')->useCurrent();
             $table->softDeletes();
 

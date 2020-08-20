@@ -6,6 +6,7 @@ use App\Transfer;
 use App\Wallet;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Str;
 use Illuminate\Validation\Rule;
 
 /**
@@ -37,20 +38,22 @@ class TransferRequest extends FormRequest
             'amount' => [
                 'required',
                 'regex:/^\d{1,12}(\.\d{1,2})?$/',
-                fn (string $attribute, $value, $fail) => $this->checkAmount($value, $fail)
-            ]
+                fn (string $attribute, $value, $fail) => $this->checkAmount($fail)
+            ],
+            'recipient_currency' => 'boolean'
         ];
     }
 
     /**
-     * @param $value
      * @param $fail
      */
-    protected function checkAmount($value, $fail): void
+    protected function checkAmount($fail): void
     {
-        $walletAmount = Wallet::find($this->input('from'))->amount;
+        $wallet = $this->wallet('from');
+        $currencyCode = Str::upper($wallet->currency->code);
+        $transferAmount = $this->currencyAmount($wallet, $this->wallet('to'));
 
-        $walletAmount < $value && $fail("You can't transfer more than $walletAmount");
+        $wallet->amount < $transferAmount && $fail("You can't transfer more than {$wallet->amount} $currencyCode");
     }
 
     /**
@@ -84,9 +87,11 @@ class TransferRequest extends FormRequest
      */
     protected function transfer($from, $to): bool
     {
-        $debited = $this->setWalletAmount($from, $this->input('amount'));
+        $debited = $this->setWalletAmount(
+            $from, $this->currencyAmount($from, $to)
+        );
         $credited = $this->setWalletAmount(
-            $to, $this->toCurrencyAmount($from, $to), false
+            $to, $this->currencyAmount($from, $to, false), false
         );
 
         return
@@ -113,11 +118,29 @@ class TransferRequest extends FormRequest
     /**
      * @param $from
      * @param $to
-     * @return float|int
+     * @param bool $debit
+     * @return float|int|mixed
      */
-    protected function toCurrencyAmount($from, $to)
+    protected function currencyAmount($from, $to, $debit = true)
     {
-        return $from->currency->rate * $this->input('amount') / $to->currency->rate;
+        $amount = $this->input('amount');
+        $recipientCurrency = $this->input('recipient_currency', false);
+
+        if ($debit) {
+            return round(
+                $recipientCurrency
+                    ? $to->currency->rate * $amount / $from->currency->rate
+                    : $amount,
+                2
+            );
+        }
+
+        return round(
+            $recipientCurrency
+                ? $amount
+                : $from->currency->rate * $amount / $to->currency->rate,
+            2
+        );
     }
 
     /**
@@ -133,7 +156,8 @@ class TransferRequest extends FormRequest
         $transfer->fromWallet()->associate($from);
         $transfer->fromCurrency()->associate($from->currency);
         $transfer->from_currency_rate = $from->currency->rate;
-        $transfer->from_amount = $this->input('amount');
+        $transfer->amount = $this->input('amount');
+        $transfer->recipient_currency = $this->input('recipient_currency') ?? false;
 
         $transfer->toWallet()->associate($to);
         $transfer->toCurrency()->associate($to->currency);
