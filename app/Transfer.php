@@ -29,24 +29,8 @@ class Transfer extends Model
     /**
      * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
      */
-    public function fromCurrency()
-    {
-        return $this->belongsTo('App\Currency', 'from_currency');
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
     public function toWallet()
     {
         return $this->belongsTo('App\Wallet', 'to');
-    }
-
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function toCurrency()
-    {
-        return $this->belongsTo('App\Currency', 'to_currency');
     }
 }

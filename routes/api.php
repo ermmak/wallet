@@ -18,7 +18,7 @@ Route::apiResource('cities', 'CityController');
 Route::apiResource('currencies', 'CurrencyController')->except('destroy');
 Route::apiResource('users', 'UserController');
 Route::prefix('transfers')->name('transfers.')->group(function () {
-    Route::get('', 'TransferController@index')->name('index');
+    Route::post('', 'TransferController@index')->name('index');
     Route::post('make', 'TransferController@make')->name('make');
 });
 

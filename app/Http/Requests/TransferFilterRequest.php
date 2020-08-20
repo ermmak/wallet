@@ -25,8 +25,9 @@ class TransferFilterRequest extends FormRequest
     public function rules()
     {
         return [
-            'client' => [ 'required', 'integer', Rule::exists('users', 'id') ],
-            'period_start' => [ '' ]
+            'user' => [ 'required', 'integer', Rule::exists('users', 'id') ],
+            'period_start' => [ 'date_format:Ymd' ],
+            'period_end' => [ 'date_format:Ymd' ],
         ];
     }
 }

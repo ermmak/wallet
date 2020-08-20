@@ -154,14 +154,9 @@ class TransferRequest extends FormRequest
         $transfer = new Transfer;
 
         $transfer->fromWallet()->associate($from);
-        $transfer->fromCurrency()->associate($from->currency);
-        $transfer->from_currency_rate = $from->currency->rate;
+        $transfer->toWallet()->associate($to);
         $transfer->amount = $this->input('amount');
         $transfer->recipient_currency = $this->input('recipient_currency') ?? false;
-
-        $transfer->toWallet()->associate($to);
-        $transfer->toCurrency()->associate($to->currency);
-        $transfer->to_currency_rate = $to->currency->rate;
 
         return $transfer->save();
     }
