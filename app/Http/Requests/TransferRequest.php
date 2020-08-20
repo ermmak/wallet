@@ -32,8 +32,8 @@ class TransferRequest extends FormRequest
     public function rules()
     {
         return [
-            'from' => [ 'required', 'integer', Rule::exists('wallets') ],
-            'to' => [ 'required', 'integer', Rule::exists('wallets') ],
+            'from' => [ 'required', 'integer', Rule::exists('wallets', 'id') ],
+            'to' => [ 'required', 'integer', 'different:from', Rule::exists('wallets', 'id') ],
             'amount' => [
                 'required',
                 'regex:/^\d{1,12}(\.\d{1,2})?$/',
@@ -81,16 +81,6 @@ class TransferRequest extends FormRequest
     /**
      * @param $from
      * @param $to
-     * @return float|int
-     */
-    protected function toCurrencyAmount($from, $to)
-    {
-        return $from->currency->rate * $this->input('amount') / $to->currency->rate;
-    }
-
-    /**
-     * @param $from
-     * @param $to
      */
     protected function transfer($from, $to): bool
     {
@@ -121,6 +111,16 @@ class TransferRequest extends FormRequest
     }
 
     /**
+     * @param $from
+     * @param $to
+     * @return float|int
+     */
+    protected function toCurrencyAmount($from, $to)
+    {
+        return $from->currency->rate * $this->input('amount') / $to->currency->rate;
+    }
+
+    /**
      * Save transfer data
      * @param $from
      * @param $to
@@ -130,12 +130,12 @@ class TransferRequest extends FormRequest
     {
         $transfer = new Transfer;
 
-        $transfer->from()->associate($from);
+        $transfer->fromWallet()->associate($from);
         $transfer->fromCurrency()->associate($from->currency);
         $transfer->from_currency_rate = $from->currency->rate;
         $transfer->from_amount = $this->input('amount');
 
-        $transfer->to()->associate($to);
+        $transfer->toWallet()->associate($to);
         $transfer->toCurrency()->associate($to->currency);
         $transfer->to_currency_rate = $to->currency->rate;
 

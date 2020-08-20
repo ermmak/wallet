@@ -18,7 +18,7 @@ class CreateTransfersTable extends Migration
             $table->foreignId('from');
             $table->foreignId('from_currency');
             $table->decimal('from_currency_rate', 10, 8);
-            $table->decimal('from_amount', 12);
+            $table->decimal('from_amount', 14);
             $table->foreignId('to');
             $table->foreignId('to_currency');
             $table->decimal('to_currency_rate', 10, 8);
@@ -37,6 +37,7 @@ class CreateTransfersTable extends Migration
             $table->foreign('to_currency')
                 ->references('id')
                 ->on('currencies');
+            $table->index('created_at');
         });
     }
 

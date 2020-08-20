@@ -18,11 +18,11 @@ class UserController extends Controller
      * Display a listing of the resource.
      *
      * @param Request $request
-     * @return void
+     * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
      */
     public function index(Request $request)
     {
-        User::with('wallet', 'city.country')->paginate($request->input('perPage') ?? 20);
+        return User::with('wallet', 'city.country')->paginate($request->input('perPage') ?? 20);
     }
 
     /**

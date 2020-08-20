@@ -6,6 +6,7 @@ use App\User;
 use App\Wallet;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
 
 /**
@@ -82,6 +83,7 @@ class UserRequest extends FormRequest
     {
         $user->name = $this->input('name');
         $user->email = $this->input('email');
+        $user->password = Hash::make($this->input('password'));
         $user->city()->associate($this->input('city'));
 
         return $user->save();

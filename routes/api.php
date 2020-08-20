@@ -14,9 +14,10 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::apiResource('users', 'UserController');
+Route::apiResource('cities', 'CityController');
 Route::apiResource('currencies', 'CurrencyController')->except('destroy');
-Route::name('transfers.')->group(function () {
+Route::apiResource('users', 'UserController');
+Route::prefix('transfers')->name('transfers.')->group(function () {
     Route::get('', 'TransferController@index')->name('index');
     Route::post('make', 'TransferController@make')->name('make');
 });

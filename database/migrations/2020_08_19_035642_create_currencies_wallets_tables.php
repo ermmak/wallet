@@ -34,7 +34,7 @@ class CreateCurrenciesWalletsTables extends Migration
             $table->id();
             $table->foreignId('user_id');
             $table->foreignId('currency_id');
-            $table->decimal('amount', 12);
+            $table->decimal('amount', 14);
             $table->timestamps();
             $table->softDeletes();
 
