@@ -16,16 +16,17 @@ class CreateTransfersTable extends Migration
         Schema::create('transfers', function (Blueprint $table) {
             $table->id();
             $table->foreignId('from');
+            $table->foreignId('to');
+            $table->timestamp('created_at')->useCurrent();
             $table->foreignId('from_currency');
             $table->decimal('from_currency_rate', 10, 8);
-            $table->foreignId('to');
             $table->foreignId('to_currency');
             $table->decimal('to_currency_rate', 10, 8);
             $table->decimal('amount', 14);
             $table->boolean('recipient_currency');
-            $table->timestamp('created_at')->useCurrent();
             $table->softDeletes();
 
+            $table->index(['from', 'to', 'created_at']);
             $table->foreign('from')
                 ->references('id')
                 ->on('wallets');
@@ -38,7 +39,6 @@ class CreateTransfersTable extends Migration
             $table->foreign('to_currency')
                 ->references('id')
                 ->on('currencies');
-            $table->index('created_at');
         });
     }
 

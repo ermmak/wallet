@@ -42,11 +42,11 @@ class User extends Authenticatable
     ];
 
     /**
-     * @return \Illuminate\Database\Eloquent\Relations\HasOne
+     * @return \Illuminate\Database\Eloquent\Relations\HasMany
      */
-    public function wallet()
+    public function wallets()
     {
-        return $this->hasOne('App\Wallet');
+        return $this->hasMany('App\Wallet');
     }
 
     /**

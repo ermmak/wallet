@@ -5,6 +5,7 @@ namespace App\Http\Requests;
 use App\User;
 use App\Wallet;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
@@ -36,8 +37,9 @@ class UserRequest extends FormRequest
             'name' => 'required',
             'email' => [ 'required', 'email', Rule::unique('users')->ignore($this->route('user')) ],
             'city' => [ 'required', Rule::exists('cities', 'id') ],
-            'currency' => [ 'required', Rule::exists('currencies', 'id') ],
-            'amount' => [ 'required', 'regex:/^\d{1,12}(\.\d{1,2})?$/' ]
+            'wallets' => [ 'array', 'required', 'min:1' ],
+            'wallets.*.currency' => [ 'required', Rule::exists('currencies', 'id') ],
+            'wallets.*.amount' => [ 'required', 'regex:/^\d{1,12}(\.\d{1,2})?$/' ]
         ];
     }
 
@@ -58,10 +60,11 @@ class UserRequest extends FormRequest
     public function createUser(): bool
     {
         $user = new User;
+        $userSaved = $this->saveUser($user);
 
-        return
-            $this->saveUser($user) &&
-            $this->makeWallet($user)->save();
+        $userSaved && $user->wallets()->saveMany($this->makeWallets());
+
+        return $userSaved;
     }
 
     /**
@@ -90,15 +93,23 @@ class UserRequest extends FormRequest
     }
 
     /**
-     * @param User $user
+     * @return Collection
+     */
+    protected function makeWallets(): Collection
+    {
+        return collect($this->input('wallets'))->map(
+            fn ($wallet) => $this->walletModel((object) $wallet)
+        );
+    }
+
+    /**
+     * @param $data
      * @return Wallet
      */
-    protected function makeWallet(User $user): Wallet
+    protected function walletModel($data): Wallet
     {
-        $wallet = new Wallet;
-        $wallet->amount = $this->input('amount');
-        $wallet->user()->associate($user);
-        $wallet->currency()->associate($this->input('currency'));
+        $wallet = new Wallet([ 'amount' => $data->amount ]);
+        $wallet->currency()->associate($data->currency);
 
         return $wallet;
     }

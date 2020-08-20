@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\TransferRequest;
+use Illuminate\Http\Request;
 
 /**
  * Class TransferController
@@ -12,9 +13,11 @@ class TransferController extends Controller
 {
     /**
      * Get transfers list
+     * @param Request $request
      */
-    public function index()
+    public function index(Request $request)
     {
+
     }
 
     /**
