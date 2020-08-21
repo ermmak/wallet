@@ -26,8 +26,9 @@ class TransferFilterRequest extends FormRequest
     {
         return [
             'user' => [ 'required', 'integer', Rule::exists('users', 'id') ],
-            'period_start' => [ 'date_format:Y-m-d' ],
-            'period_end' => [ 'date_format:Y-m-d' ],
+            'period_start' => 'date_format:Y-m-d',
+            'period_end' => 'date_format:Y-m-d',
+            'csv' => 'boolean',
         ];
     }
 }
