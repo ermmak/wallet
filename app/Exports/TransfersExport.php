@@ -56,6 +56,9 @@ class TransfersExport implements FromQuery, WithMapping, WithHeadings
      */
     public function map($data): array
     {
-        return $this->formatData($data);
+        $formatted = $this->formatData($data);
+        $formatted['recipient_currency'] = $data->recipient_currency ? 'Yes' : 'No';
+
+        return array_values($formatted);
     }
 }
